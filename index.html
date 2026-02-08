@@ -236,7 +236,7 @@
         </div>
         <div class="res-row">
             <span class="res-lbl">获得票数 (数字资产)</span>
-            <span class="res-val big" style="color:var(--gold)" id="pp_tickets">62.5 枚</span>
+            <span class="res-val big" style="color:var(--gold)" id="pp_tickets">62.5 票</span>
         </div>
         
         <div class="input-group" style="margin-top:15px; border-top:1px dashed #333; padding-top:10px;">
@@ -382,7 +382,7 @@
 
         $('ticket_price_tag').innerText = `配票价: ${ticketCost}元`;
         $('pp_invest').innerText = "¥ " + fmt(investAmount);
-        $('pp_tickets').innerText = ticketCount.toFixed(1) + " 枚";
+        $('pp_tickets').innerText = ticketCount.toFixed(1) + " 票";
 
         $('future_total_val').innerText = "¥ " + fmt(totalAssetValue);
         $('future_profit').innerText = (profit >= 0 ? "+" : "") + "¥ " + fmt(profit);
@@ -403,4 +403,5 @@
 </script>
 </body>
 </html>
+
 
