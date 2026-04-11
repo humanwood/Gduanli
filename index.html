@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>R1 全能投资决策计算器 V3</title>
+    <title>R1 太阳线投资矩阵计算器 V3.4</title>
     <style>
         :root {
             --bg: #050a14;
@@ -11,24 +11,21 @@
             --primary: #00f2ea;
             --secondary: #2d6cdf;
             --gold: #ffbe0b;
-            --up: #00d084;
             --text-main: #ffffff;
             --text-sub: #8b9bb4;
             --border: rgba(255,255,255,0.08);
             --input-bg: #0a0e1a;
-            --accent-phase1: #ff6b6b;
-            --accent-phase2: #51cf66;
+            --matrix-color: #9d4edd;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; }
         
         body { background-color: var(--bg); color: var(--text-main); padding: 15px; max-width: 600px; margin: 0 auto; min-height: 100vh; padding-bottom: 50px; }
 
         header { text-align: center; margin-bottom: 20px; padding: 15px 0; border-bottom: 1px solid var(--border); }
-        header h1 { font-size: 22px; font-weight: 800; background: linear-gradient(90deg, #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        header h1 { font-size: 20px; font-weight: 800; background: linear-gradient(90deg, #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         header p { font-size: 11px; color: var(--text-sub); margin-top: 5px; }
 
-        /* Tabs */
         .tabs { display: flex; background: #1c2236; border-radius: 8px; padding: 4px; margin-bottom: 15px; border: 1px solid var(--border); }
         .tab-btn { flex: 1; text-align: center; padding: 12px; font-size: 14px; color: var(--text-sub); cursor: pointer; border-radius: 6px; transition: 0.3s; font-weight: 600; }
         .tab-btn.active { background: var(--secondary); color: #fff; box-shadow: 0 4px 12px rgba(45, 108, 223, 0.4); }
@@ -37,80 +34,70 @@
         .panel.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Card */
-        .card { background: var(--card-bg); border-radius: 16px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); box-shadow: 0 8px 24px rgba(0,0,0,0.3); position: relative; overflow: hidden; }
+        .card { background: var(--card-bg); border-radius: 16px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); position: relative; }
         .card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed rgba(255,255,255,0.1); }
         .card-title { font-size: 15px; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 6px; }
 
-        /* Inputs */
         .input-group { margin-bottom: 18px; }
         .label-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-sub); margin-bottom: 8px; }
         .input-wrap { position: relative; display: flex; align-items: center; }
-        input[type="number"] { width: 100%; background: var(--input-bg); border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: bold; outline: none; transition: 0.3s; }
+        input[type="number"] { width: 100%; background: var(--input-bg); border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: bold; outline: none; }
         input[type="number"]:focus { border-color: var(--secondary); }
         
-        /* Range Slider */
         input[type=range] { width: 100%; -webkit-appearance: none; background: transparent; margin-top: 5px; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: var(--secondary); margin-top: -7px; box-shadow: 0 0 8px rgba(45, 108, 223, 0.5); cursor: pointer; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: var(--secondary); margin-top: -7px; box-shadow: 0 0 8px rgba(45, 108, 223, 0.5); }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #333; border-radius: 2px; }
 
-        /* Results Box */
         .res-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px; }
         .res-lbl { font-size: 12px; color: var(--text-sub); }
         .res-val { font-size: 16px; font-weight: bold; color: #fff; }
-        .res-val.big { font-size: 20px; }
-        .res-val.huge { font-size: 24px; color: var(--gold); text-shadow: 0 0 10px rgba(255,190,11,0.3); }
-
+        .res-val.huge { font-size: 22px; color: var(--gold); text-shadow: 0 0 10px rgba(255,190,11,0.3); }
         .unit { position: absolute; right: 12px; font-size: 12px; color: var(--text-sub); pointer-events: none; }
-        
-        /* Layout Grid */
-        .layout-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 10px; margin-bottom: 5px; }
-        .layout-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 12px 5px; border-radius: 8px; text-align: center; }
-        .layout-box .title { font-size: 11px; color: var(--text-sub); margin-bottom: 4px; }
-        .layout-box .val { font-size: 14px; font-weight: bold; color: var(--primary); }
 
-        /* Highlight Summary */
-        .summary-box { background: linear-gradient(135deg, rgba(45,108,223,0.1) 0%, rgba(0,242,234,0.1) 100%); border: 1px solid rgba(0,242,234,0.3); border-radius: 12px; padding: 15px; margin-top: 15px; position: relative; overflow: hidden; }
-        .summary-title { font-size: 13px; color: var(--primary); font-weight: bold; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; display: flex; justify-content: space-between; }
+        /* 矩阵布局模块 */
+        .matrix-box { background: rgba(157, 78, 221, 0.05); border: 1px solid rgba(157, 78, 221, 0.3); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+        .matrix-title { font-size: 13px; color: var(--matrix-color); font-weight: bold; margin-bottom: 10px; display: flex; justify-content: space-between; }
+        .tree-diagram { font-family: monospace; font-size: 12px; color: #fff; background: #0a0e1a; padding: 10px; border-radius: 6px; line-height: 1.6; white-space: pre-wrap; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); }
         
         .badge { background: rgba(255,190,11,0.2); color: var(--gold); padding: 2px 6px; border-radius: 4px; font-size: 10px; }
         .notice { font-size: 11px; color: #888; margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.1); line-height: 1.4; }
 
+        .summary-box { background: linear-gradient(135deg, rgba(45,108,223,0.1) 0%, rgba(0,242,234,0.1) 100%); border: 1px solid rgba(0,242,234,0.3); border-radius: 12px; padding: 15px; margin-top: 15px; }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>R1 全景投资计算器 V3</h1>
-    <p>底层双轨复利测算 | 防烧伤极致排线</p>
+    <h1>R1 太阳线投资计算器 V3.4</h1>
+    <p>底层双轨复利测算 | 智能判定最优拓扑层级</p>
 </header>
 
 <div class="card" style="border-color: rgba(0, 242, 234, 0.3);">
     <div class="card-head">
-        <span class="card-title">🌐 核心市场预期 (全局影响)</span>
+        <span class="card-title">🌐 核心市场预期 (全局规则)</span>
         <span class="badge">48对80 杠杆生效中</span>
     </div>
     
     <div class="input-group">
         <div class="label-row">
-            <span>当前真实建仓币价 (U)</span>
+            <span>当前建仓币价 (U)</span>
             <span id="txt_curr_price" style="color:var(--primary)">0.50</span>
         </div>
-        <input type="range" id="sl_curr_price" min="0.1" max="2.0" step="0.01" value="0.5" oninput="runAllCalculations()">
+        <input type="range" id="sl_curr_price" min="0.1" max="2.0" step="0.01" value="0.5" oninput="runCalculations()">
     </div>
 
     <div class="input-group" style="margin-bottom: 0;">
         <div class="label-row">
-            <span>未来目标抛售币价 (U)</span>
+            <span>未来抛售目标价 (U)</span>
             <span id="txt_tar_price" style="color:var(--gold)">1.00</span>
         </div>
-        <input type="range" id="sl_tar_price" min="0.5" max="5.0" step="0.1" value="1.0" oninput="runAllCalculations()">
+        <input type="range" id="sl_tar_price" min="0.5" max="5.0" step="0.1" value="1.0" oninput="runCalculations()">
     </div>
 </div>
 
 <div class="tabs">
     <div class="tab-btn active" onclick="switchTab('node_mode', this)">💎 节点定投模式</div>
-    <div class="tab-btn" onclick="switchTab('pure_mode', this)">🚀 纯理财秒杀</div>
+    <div class="tab-btn" onclick="switchTab('pure_mode', this)">🚀 纯理财布局</div>
 </div>
 
 <div id="node_mode" class="panel active">
@@ -118,62 +105,32 @@
         <div class="card-head"><span class="card-title">⚙️ 节点矿机参数</span></div>
         <div class="input-group">
             <div class="label-row"><span>单个节点价格</span></div>
-            <div class="input-wrap">
-                <input type="number" id="nd_price" value="15000" oninput="runAllCalculations()">
-                <span class="unit">U</span>
-            </div>
+            <div class="input-wrap"><input type="number" id="nd_price" value="15000" oninput="runCalculations()"><span class="unit">U</span></div>
         </div>
         <div style="display:flex; gap:10px;">
             <div class="input-group" style="flex:1;">
                 <div class="label-row"><span>每日产出</span></div>
-                <div class="input-wrap">
-                    <input type="number" id="nd_daily" value="450" oninput="runAllCalculations()">
-                    <span class="unit">R1</span>
-                </div>
+                <div class="input-wrap"><input type="number" id="nd_daily" value="450" oninput="runCalculations()"><span class="unit">R1</span></div>
             </div>
             <div class="input-group" style="flex:1;">
                 <div class="label-row"><span>产出上限</span></div>
-                <div class="input-wrap">
-                    <input type="number" id="nd_limit" value="100000" oninput="runAllCalculations()">
-                    <span class="unit">R1</span>
-                </div>
+                <div class="input-wrap"><input type="number" id="nd_limit" value="100000" oninput="runCalculations()"><span class="unit">R1</span></div>
             </div>
         </div>
     </div>
 
-    <div class="card" style="border-color: rgba(45, 108, 223, 0.4);">
-        <div class="card-head">
-            <span class="card-title" style="color:var(--secondary)">📊 每日最优排线方案</span>
-            <span style="font-size:11px; color:#888;">(自动计算防烧伤)</span>
-        </div>
-        <div class="layout-grid">
-            <div class="layout-box">
-                <div class="title">主号 A 充入</div>
-                <div class="val" id="nd_a_alloc">0 R1</div>
-            </div>
-            <div class="layout-box">
-                <div class="title">大区 B 充入</div>
-                <div class="val" id="nd_b_alloc">0 R1</div>
-            </div>
-            <div class="layout-box">
-                <div class="title">小区 C 充入</div>
-                <div class="val" id="nd_c_alloc">0 R1</div>
-            </div>
-        </div>
-        <div class="notice">策略说明：主号每日截留约8%储备防烧伤容量，其余资产按1:1输送给大小区，将资金利用率拉升至极限。</div>
+    <div class="matrix-box">
+        <div class="matrix-title"><span>🧬 拓扑架构建议</span><span class="badge" id="nd_matrix_type">黄金三角</span></div>
+        <div class="tree-diagram" id="nd_tree"></div>
+        <div class="notice" id="nd_matrix_desc"></div>
     </div>
 
     <div class="summary-box">
-        <div class="summary-title"><span>💰 节点全生命周期财报</span> <span id="nd_v1_day" class="badge">--天 达成V1</span></div>
-        
-        <div class="res-row">
-            <span class="res-lbl">日常防守回本 (按现价变现)</span>
-            <span class="res-val" id="nd_recoup">0 U</span>
+        <div style="font-size: 13px; color: var(--primary); font-weight: bold; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; display: flex; justify-content: space-between;">
+            <span>💰 节点全生命周期财报</span> <span id="nd_v1_day" class="badge">--</span>
         </div>
-        <div class="res-row" style="margin-top: 10px;">
-            <span class="res-lbl">3倍出局终极估值 (按目标价)</span>
-            <span class="res-val huge" id="nd_max_profit">0 U</span>
-        </div>
+        <div class="res-row"><span class="res-lbl">日常防守回本 (提现利润)</span><span class="res-val" id="nd_recoup">0 U</span></div>
+        <div class="res-row" style="margin-top: 10px;"><span class="res-lbl">3倍出局终极估值</span><span class="res-val huge" id="nd_max_profit">0 U</span></div>
     </div>
 </div>
 
@@ -182,50 +139,29 @@
         <div class="card-head"><span class="card-title">⚙️ 理财直入参数</span></div>
         <div class="input-group">
             <div class="label-row">
-                <span>准备梭哈的总法币预算</span>
+                <span>准备梭哈的总预算</span>
                 <span id="txt_pure_budget" style="color:var(--primary)">30,000 U</span>
             </div>
-            <input type="range" id="sl_pure_budget" min="5000" max="100000" step="1000" value="30000" oninput="runAllCalculations()">
+            <input type="range" id="sl_pure_budget" min="5000" max="300000" step="5000" value="30000" oninput="runCalculations()">
             <div class="label-row" style="margin-top:2px">
                 <span style="font-size:10px; color:#666">5k U</span>
-                <span style="font-size:10px; color:#666">10w U</span>
+                <span style="font-size:10px; color:#666">30w U</span>
             </div>
         </div>
     </div>
 
-    <div class="card" style="border-color: rgba(45, 108, 223, 0.4);">
-        <div class="card-head">
-            <span class="card-title" style="color:var(--secondary)">📊 首日开仓建仓方案</span>
-            <span style="font-size:11px; color:#888;">(一次性分配)</span>
-        </div>
-        <div class="layout-grid">
-            <div class="layout-box">
-                <div class="title">主号 A 建仓</div>
-                <div class="val" id="pf_a_alloc">0 R1</div>
-            </div>
-            <div class="layout-box">
-                <div class="title">大区 B 建仓</div>
-                <div class="val" id="pf_b_alloc">0 R1</div>
-            </div>
-            <div class="layout-box">
-                <div class="title">小区 C 建仓</div>
-                <div class="val" id="pf_c_alloc">0 R1</div>
-            </div>
-        </div>
-        <div class="notice" id="pf_status_notice">策略说明：主号预留总资金的5%作为基础防烧伤底仓，大区小区同步起跑加速POS裂变。</div>
+    <div class="matrix-box">
+        <div class="matrix-title"><span>🧬 拓扑架构建议</span><span class="badge" style="background: rgba(45,108,223,0.3); color:#fff" id="pf_matrix_type"></span></div>
+        <div class="tree-diagram" id="pf_tree"></div>
+        <div class="notice" id="pf_matrix_desc"></div>
     </div>
 
     <div class="summary-box">
-        <div class="summary-title"><span>💰 一年期静态结算推演</span> <span id="pf_v1_day" class="badge">--</span></div>
-        
-        <div class="res-row">
-            <span class="res-lbl">日常提现回收 (按现价变现)</span>
-            <span class="res-val" id="pf_recoup">0 U</span>
+        <div style="font-size: 13px; color: var(--primary); font-weight: bold; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; display: flex; justify-content: space-between;">
+            <span>💰 一年期静态结算推演</span> <span id="pf_v1_day" class="badge">--</span>
         </div>
-        <div class="res-row" style="margin-top: 10px;">
-            <span class="res-lbl">3倍出局终极估值 (按目标价)</span>
-            <span class="res-val huge" id="pf_max_profit">0 U</span>
-        </div>
+        <div class="res-row"><span class="res-lbl">日常提现回收 (按现价变现)</span><span class="res-val" id="pf_recoup">0 U</span></div>
+        <div class="res-row" style="margin-top: 10px;"><span class="res-lbl">全网3倍出局终极估值</span><span class="res-val huge" id="pf_max_profit">0 U</span></div>
     </div>
 </div>
 
@@ -233,7 +169,6 @@
     const fmt = n => Math.floor(n).toLocaleString();
     const $ = id => document.getElementById(id);
 
-    // 切换 Tab
     function switchTab(mode, el) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         el.classList.add('active');
@@ -241,41 +176,37 @@
         $(mode).classList.add('active');
     }
 
-    // POS 收益率阶梯函数
     function getPosRate(balance) {
         if (balance < 100) return 0;
-        else if (balance < 1000) return 0.002;
-        else if (balance < 10001) return 0.003;
-        else if (balance <= 100000) return 0.004;
-        else return 0.005;
+        if (balance < 1000) return 0.002;
+        if (balance < 10001) return 0.003;
+        if (balance <= 100000) return 0.004;
+        return 0.005; // 超过十万币 5‰
     }
 
-    function runAllCalculations() {
-        // --- 1. 获取全局参数 ---
+    function runCalculations() {
         let currentPrice = parseFloat($('sl_curr_price').value);
         let targetPrice = parseFloat($('sl_tar_price').value);
         $('txt_curr_price').innerText = currentPrice.toFixed(2);
         $('txt_tar_price').innerText = targetPrice.toFixed(2);
 
-        // 常量
-        const sysLeverageReal = 48;
-        const sysLeverageSys = 80;
-        const v1TargetSysU = 50000;
-        const leverageMultiplier = sysLeverageSys / sysLeverageReal;
-        const realUNeededForV1 = v1TargetSysU / leverageMultiplier;
+        const v1TargetU = 50000;
+        const v2TargetU = 150000; // 假设 V2 需要全网 15万 U 业绩
+        const leverageMultiplier = 80 / 48;
+        const realUNeededForV1 = v1TargetU / leverageMultiplier;
         const targetR1ForV1 = realUNeededForV1 / currentPrice;
-
-        // --- 2. 计算节点定投模式 ---
-        let ndPrice = parseFloat($('nd_price').value) || 15000;
+        
+        // ================= 节点模式计算 =================
         let ndDaily = parseFloat($('nd_daily').value) || 450;
         let ndLimit = parseFloat($('nd_limit').value) || 100000;
-
+        
+        // 节点模式资金量小，强制采用一层架构（黄金三角）
         let aDailyAlloc = ndDaily * 0.08;
         let bcDailyAlloc = (ndDaily - aDailyAlloc) / 2;
         
-        $('nd_a_alloc').innerText = aDailyAlloc.toFixed(0) + " R1";
-        $('nd_b_alloc').innerText = bcDailyAlloc.toFixed(0) + " R1";
-        $('nd_c_alloc').innerText = bcDailyAlloc.toFixed(0) + " R1";
+        $('nd_matrix_type').innerText = "黄金三角 (1层架构)";
+        $('nd_tree').innerText = `主号 A (截留备付: ${aDailyAlloc.toFixed(0)} R1/天)\n ├─ 大区 B (注入: ${bcDailyAlloc.toFixed(0)} R1/天)\n └─ 小区 C (注入: ${bcDailyAlloc.toFixed(0)} R1/天)`;
+        $('nd_matrix_desc').innerText = "数学最优解：资金量较小时，严禁向下裂变。集中兵力养大 B 和 C，确保吃到 3‰-4‰ 的高阶 POS，防止资金分散导致收益降级。";
 
         let daysNode = 0, aCap = 0, aBal = 0, bBal = 0, cBal = 0;
         let totalCashedNode = 0, v1TriggeredNode = false, v1DayNode = 0;
@@ -303,91 +234,100 @@
             bBal += posB; cBal += posC; aBal += posA;
 
             let incomeA = posA;
-            if(v1TriggeredNode) {
-                incomeA += (posB + posC) * 0.15;
-            }
+            if(v1TriggeredNode) incomeA += (posB + posC) * 0.15;
             aCap -= incomeA;
             totalCashedNode += incomeA;
         }
 
-        if(v1TriggeredNode) {
-            $('nd_v1_day').innerText = `第 ${v1DayNode} 天达成V1`;
-            $('nd_v1_day').style.color = "var(--gold)";
-        } else {
-            $('nd_v1_day').innerText = "产完未达成 V1";
-            $('nd_v1_day').style.color = "#888";
-        }
-
+        $('nd_v1_day').innerText = v1TriggeredNode ? `第 ${v1DayNode} 天达成 V1` : "产完未达成 V1";
         $('nd_recoup').innerText = fmt(totalCashedNode * currentPrice) + " U";
         $('nd_max_profit').innerText = fmt((bBal + cBal) * 3 * targetPrice) + " U";
 
-        // --- 3. 计算纯理财模式 ---
+        // ================= 纯理财模式计算 =================
         let pfBudget = parseFloat($('sl_pure_budget').value);
         $('txt_pure_budget').innerText = fmt(pfBudget) + " U";
-
         let totalR1Purchased = pfBudget / currentPrice;
-        let aInit = totalR1Purchased * 0.05;
-        let bcInit = (totalR1Purchased - aInit) / 2;
 
-        $('pf_a_alloc').innerText = aInit.toFixed(0) + " R1";
-        $('pf_b_alloc').innerText = bcInit.toFixed(0) + " R1";
-        $('pf_c_alloc').innerText = bcInit.toFixed(0) + " R1";
+        // 判定资金规模决定架构
+        let isSuperWhale = pfBudget >= (v2TargetU / leverageMultiplier); 
+        let matrixName = isSuperWhale ? "七星升阶阵 (保送 V2)" : "黄金三角 (集中保 V1)";
+        $('pf_matrix_type').innerText = matrixName;
 
-        let aCapPf = aInit * 3;
-        let directBonusPf = (bcInit * 2) * 0.10;
+        let aInitPf, bInitPf, cInitPf, subInitPf = 0;
+        
+        if (isSuperWhale) {
+            // 超级大户：采用两层架构，保送 B 和 C 成为 V1，主号晋升 V2 (假设吃20%)
+            aInitPf = totalR1Purchased * 0.05;
+            let remaining = totalR1Purchased - aInitPf;
+            bInitPf = remaining * 0.1; // B和C各留一点防烧伤
+            cInitPf = remaining * 0.1;
+            subInitPf = (remaining * 0.8) / 4; // B1,B2,C1,C2 平分大头资金
+            
+            $('pf_tree').innerText = `主号 A (留底: ${fmt(aInitPf)} R1)\n ├─ 节点 B (留底: ${fmt(bInitPf)} R1)\n │   ├─ B1 (底仓: ${fmt(subInitPf)} R1)\n │   └─ B2 (底仓: ${fmt(subInitPf)} R1)\n └─ 节点 C (留底: ${fmt(cInitPf)} R1)\n     ├─ C1 (底仓: ${fmt(subInitPf)} R1)\n     └─ C2 (底仓: ${fmt(subInitPf)} R1)`;
+            $('pf_matrix_desc').innerText = "大户策略：资金过量，必须分流。用 4 个底层号堆起巨额市值，强行把 B 和 C 保送成 V1，主号 A 借势冲刺 V2 吃更高极差。";
+        } else {
+            // 中小资金：单层架构
+            aInitPf = totalR1Purchased * 0.05;
+            bInitPf = (totalR1Purchased - aInitPf) / 2;
+            cInitPf = bInitPf;
+            $('pf_tree').innerText = `主号 A (留底: ${fmt(aInitPf)} R1)\n ├─ 大区 B (底仓: ${fmt(bInitPf)} R1)\n └─ 小区 C (底仓: ${fmt(cInitPf)} R1)`;
+            $('pf_matrix_desc').innerText = "收益最优解：资金集中于 BC 两层，吃满 4‰/5‰ 顶配 POS。切勿盲目开子账号，会导致本金碎裂、理财降级且直推奖分散！";
+        }
+
+        let aCapPf = aInitPf * 3;
+        let directBonusPf = isSuperWhale ? ((subInitPf*4)*0.10 + (bInitPf+cInitPf)*0.10) : ((bInitPf+cInitPf)*0.10);
         aCapPf -= directBonusPf;
 
-        let daysPf = 0, bBalPf = bcInit, cBalPf = bcInit, aBalPf = aInit;
+        let daysPf = 0, bBalPf = bInitPf, cBalPf = cInitPf, aBalPf = aInitPf;
+        let subBBal = subInitPf*2, subCBal = subInitPf*2; // 用于 V2 测算
         let totalCashedPf = directBonusPf;
-        let v1TriggeredPf = false, v1DayPf = 0;
+        let pfLevel = 0; // 0=无, 1=V1, 2=V2
+        let pfDay = 0;
 
-        if((bBalPf + cBalPf) >= targetR1ForV1) {
-            v1TriggeredPf = true;
-            v1DayPf = 0;
-            $('pf_status_notice').innerHTML = `✨ <span style="color:var(--gold)">资金碾压！</span> 您的资金规模足以在第 0 天瞬间击穿 V1 门槛，直接享受全团队每日加速！`;
-        } else {
-            $('pf_status_notice').innerHTML = `策略说明：主号预留总资金的5%作为基础防烧伤底仓，大区小区同步起跑加速POS裂变。`;
-        }
+        // 首日判定
+        let totalVol = isSuperWhale ? (bInitPf + cInitPf + subBBal + subCBal) : (bInitPf + cInitPf);
+        if (isSuperWhale && totalVol >= (v2TargetU/leverageMultiplier/currentPrice)) { pfLevel = 2; pfDay = 0; }
+        else if (totalVol >= targetR1ForV1) { pfLevel = 1; pfDay = 0; }
 
         while(daysPf < 365) {
             daysPf++;
-            if(!v1TriggeredPf && (bBalPf + cBalPf) >= targetR1ForV1) {
-                v1TriggeredPf = true;
-                v1DayPf = daysPf;
-            }
+            totalVol = isSuperWhale ? (bBalPf + cBalPf + subBBal + subCBal) : (bBalPf + cBalPf);
+            
+            if (pfLevel < 2 && isSuperWhale && totalVol >= (v2TargetU/leverageMultiplier/currentPrice)) { pfLevel = 2; pfDay = daysPf; }
+            else if (pfLevel === 0 && totalVol >= targetR1ForV1) { pfLevel = 1; pfDay = daysPf; }
 
+            let posA = aBalPf * getPosRate(aBalPf);
             let posB = bBalPf * getPosRate(bBalPf);
             let posC = cBalPf * getPosRate(cBalPf);
-            let posA = aBalPf * getPosRate(aBalPf);
-
-            bBalPf += posB; cBalPf += posC; aBalPf += posA;
+            let posSub = isSuperWhale ? (subBBal * getPosRate(subBBal/2) + subCBal * getPosRate(subCBal/2)) : 0;
+            
+            aBalPf += posA; bBalPf += posB; cBalPf += posC;
+            if(isSuperWhale) { subBBal += subBBal * getPosRate(subBBal/2); subCBal += subCBal * getPosRate(subCBal/2); }
 
             let incomeA = posA;
-            if(v1TriggeredPf) {
-                incomeA += (posB + posC) * 0.15;
+            if (pfLevel === 2) {
+                incomeA += (posB + posC + posSub) * 0.20; // V2 假设吃 20%
+            } else if (pfLevel === 1) {
+                incomeA += (posB + posC + posSub) * 0.15; // V1 吃 15%
             }
+            
             aCapPf -= incomeA;
             totalCashedPf += incomeA;
         }
 
-        if(v1DayPf === 0 && v1TriggeredPf) {
-            $('pf_v1_day').innerText = "第 0 天瞬间达成V1";
+        if(pfLevel > 0) {
+            $('pf_v1_day').innerText = pfDay === 0 ? `第 0 天瞬间达成 V${pfLevel}` : `第 ${pfDay} 天达成 V${pfLevel}`;
             $('pf_v1_day').style.color = "var(--gold)";
-        } else if (v1TriggeredPf) {
-            $('pf_v1_day').innerText = `第 ${v1DayPf} 天达成V1`;
-            $('pf_v1_day').style.color = "var(--primary)";
         } else {
-            $('pf_v1_day').innerText = "1年内未达成 V1";
+            $('pf_v1_day').innerText = "1年内未达成任何 V 级";
             $('pf_v1_day').style.color = "#888";
         }
 
         $('pf_recoup').innerText = fmt(totalCashedPf * currentPrice) + " U";
-        $('pf_max_profit').innerText = fmt((bBalPf + cBalPf) * 3 * targetPrice) + " U";
+        $('pf_max_profit').innerText = fmt(totalVol * 3 * targetPrice) + " U";
     }
 
-    // 初始化计算
-    runAllCalculations();
-
+    runCalculations();
 </script>
 </body>
 </html>
