@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>R1 太阳线实盘建仓计算器 V5.0</title>
+    <title>R1 太阳线实盘建仓计算器 V5.1</title>
     <style>
         :root {
             --bg: #050a14;
@@ -88,23 +88,23 @@
 <body>
 
 <header>
-    <h1>R1 太阳线建仓计算器 V5.0</h1>
-    <p>1:1市价硬核推演 | 极差/平级博弈模型</p>
+    <h1>R1 太阳线实盘计算器 V5.1</h1>
+    <p>剥离复投直推 | 极差/平级博弈全推演</p>
 </header>
 
 <div class="card" style="border-color: rgba(255, 84, 112, 0.4);">
     <div class="card-head">
-        <span class="card-title">🌐 核心市场定价 & 收益战略</span>
+        <span class="card-title">🌐 核心市场定价 & 分润战略</span>
         <span class="badge" style="background: rgba(255, 84, 112, 0.2); color: var(--reinvest-color);">1:1 真实市价无折</span>
     </div>
     
     <div class="input-group">
         <div class="label-row">
-            <span style="font-weight:bold; color:#fff;">底层分润与裂变战略 (决定烧伤率)：</span>
+            <span style="font-weight:bold; color:#fff;">底层 POS 处理策略 (影响极差博弈)：</span>
         </div>
         <select id="sel_strategy" onchange="runCalculations()" style="font-size:14px; background: rgba(0, 242, 234, 0.05); border-color: var(--primary);">
-            <option value="cash">👉 每日全额提现 (主号无烧伤压力，养老模式)</option>
-            <option value="compound">🔥 太阳线深度裂变 (复投推高U值，冲刺平级/极差大奖)</option>
+            <option value="cash">👉 每日全额提现 (底层不升V，A永吃满极差)</option>
+            <option value="compound">🔥 太阳线向下复投 (推高U值，平级博弈冲刺V6)</option>
         </select>
     </div>
 
@@ -142,51 +142,52 @@
         </div>
         <input type="range" id="sl_pure_tokens" min="10000" max="5000000" step="10000" value="100000" oninput="runCalculations()">
         <div class="label-row" style="margin-top:4px;">
-            <span id="txt_pure_budget_u" style="font-size:12px; color:#888;">需备法币预算: 50,000 U</span>
+            <span id="txt_pure_budget_u" style="font-size:12px; color:#888;">如不抵扣，原需法币: 50,000 U</span>
         </div>
     </div>
     
     <div class="snap-row">
-        <div class="snap-btn" onclick="snapToV(50000)">V1 门槛<br><span style="font-weight:normal; font-size:10px">(5万U)</span></div>
-        <div class="snap-btn" onclick="snapToV(150000)">V2 门槛<br><span style="font-weight:normal; font-size:10px">(15万U)</span></div>
-        <div class="snap-btn" onclick="snapToV(500000)">V3 门槛<br><span style="font-weight:normal; font-size:10px">(50万U)</span></div>
-        <div class="snap-btn" onclick="snapToV(2000000)">V4 门槛<br><span style="font-weight:normal; font-size:10px">(200万U)</span></div>
+        <div class="snap-btn" onclick="snapToV(50000)">V1 门槛<br><span style="font-weight:normal; font-size:10px" id="snap_v1_save"></span></div>
+        <div class="snap-btn" onclick="snapToV(150000)">V2 门槛<br><span style="font-weight:normal; font-size:10px" id="snap_v2_save"></span></div>
+        <div class="snap-btn" onclick="snapToV(500000)">V3 门槛<br><span style="font-weight:normal; font-size:10px" id="snap_v3_save"></span></div>
+        <div class="snap-btn" onclick="snapToV(2000000)">V4 门槛<br><span style="font-weight:normal; font-size:10px" id="snap_v4_save"></span></div>
     </div>
 </div>
 
 <div class="matrix-box" style="background: rgba(0, 242, 234, 0.05); border-color: rgba(0, 242, 234, 0.3);">
-    <div class="matrix-title"><span>🧬 第 0 天：极限资金抵扣建仓指导书</span><span class="badge" style="background: rgba(45,108,223,0.3); color:#fff" id="pf_matrix_type"></span></div>
+    <div class="matrix-title"><span>🧬 第 0 天：极限资金双重抵扣实操</span><span class="badge" style="background: rgba(45,108,223,0.3); color:#fff" id="pf_matrix_type"></span></div>
     <div class="step-list" id="pf_setup_steps"></div>
+    <div style="margin-top:10px; padding-top:10px; border-top:1px dashed rgba(255,255,255,0.2); display:flex; justify-content:space-between; font-weight:bold;">
+        <span style="color:#fff;">🔥 抵扣建仓为您省下：</span>
+        <span id="opt_result" style="color:var(--gold);">省下 0 U</span>
+    </div>
 </div>
 
 <div class="reinvest-box">
     <div class="reinvest-title">
-        <span>🛡️ 次日产出与防烧伤指令透视</span>
+        <span>🛡️ 次日产出透视与防烧伤指令</span>
         <span class="badge outline" id="pf_daily_yield_lbl">预估总产: 0 R1</span>
     </div>
     
     <div class="xray-box">
-        <div class="xray-title"><span>🔍 主号 A 收益成分解剖 (决定补仓量)</span></div>
+        <div class="xray-title"><span>🔍 主号 A 收益成分解剖 (精准烧伤源)</span></div>
         <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:11px;">
             <span>1. A号自身静态 POS</span>
             <span class="xray-hl" id="xray_a_pos" style="color:#fff">0 R1</span>
         </div>
         <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:11px;">
-            <span id="lbl_direct_bonus">2. 伞下复投新增直推奖 (10%)</span>
-            <span class="xray-hl" id="xray_a_direct" style="color:#fff">0 R1</span>
-        </div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:11px;">
-            <span>3. 团队加速极差拦截 (A级减B/C级)</span>
+            <span>2. 团队极差拦截 (A级率 - B/C级率)</span>
             <span class="xray-hl" id="xray_a_diff" style="color:var(--primary)">0 R1</span>
         </div>
         <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:11px;">
-            <span id="lbl_peer_bonus">4. 太阳线深度平级奖 (10%)</span>
+            <span id="lbl_peer_bonus">3. 太阳线深度平级奖 (10%)</span>
             <span class="xray-hl" id="xray_a_peer" style="color:var(--peer-color)">0 R1</span>
         </div>
         <div style="border-top:1px dashed rgba(255,255,255,0.1); margin-top:6px; padding-top:6px; display:flex; justify-content:space-between;">
-            <span style="color:var(--gold); font-weight:bold;">A号总提成 (烧伤源)</span>
+            <span style="color:var(--gold); font-weight:bold;">A号全天总提成 (烧伤总额)</span>
             <span class="xray-hl" id="xray_a_total" style="color:var(--gold); font-size:14px;">0 R1</span>
         </div>
+        <div style="color:#888; font-size:10px; margin-top:6px;">*注：复投至B1/C1，直推奖归B/C所有，A不拿直推，免于该部分烧伤。</div>
     </div>
 
     <div class="layout-grid">
@@ -205,31 +206,31 @@
 
 <div class="summary-box">
     <div style="font-size: 13px; color: var(--primary); font-weight: bold; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; display: flex; justify-content: space-between;">
-        <span>💰 一年期财报 (动态战略推演)</span> 
+        <span>💰 365天 财报终极推演</span> 
         <div id="pf_v_badges"></div>
     </div>
-    <div class="res-row"><span class="res-lbl">首日伞下实际市值 (起步评级基数)</span><span class="res-val" id="pf_u_accum">0 U</span></div>
-    <div class="res-row"><span class="res-lbl">建仓真实净成本 (掏出法币-次日结余)</span><span class="res-val" id="pf_net_cost" style="color:var(--primary)">0 U</span></div>
+    <div class="res-row"><span class="res-lbl">首日伞下真实市值 (起步评级)</span><span class="res-val" id="pf_u_accum">0 U</span></div>
+    <div class="res-row"><span class="res-lbl">建仓真实净成本 (总支出 - 首日提现)</span><span class="res-val" id="pf_net_cost" style="color:var(--primary)">0 U</span></div>
     <div class="res-row" style="border-top:1px dashed rgba(255,255,255,0.2); margin-top:8px; padding-top:8px;">
-        <span class="res-lbl" id="lbl_recoup" style="color:var(--safe-color)">🔥 一年期可提现总资产 (按年末预估价)</span>
+        <span class="res-lbl" id="lbl_recoup" style="color:var(--safe-color)">🔥 一年期累计可提现资产 (按年末价)</span>
         <span class="res-val" id="pf_recoup" style="color:var(--safe-color); font-size:18px;">0 U</span>
     </div>
-    <div class="res-row" style="margin-top: 10px;"><span class="res-lbl">底层全线3倍出局终极估值 (按抛售价)</span><span class="res-val huge" id="pf_max_profit">0 U</span></div>
+    <div class="res-row" style="margin-top: 10px;"><span class="res-lbl">底层账号3倍出局终极估值 (按抛售价)</span><span class="res-val huge" id="pf_max_profit">0 U</span></div>
 </div>
 
 <script>
     const fmt = n => Math.floor(n).toLocaleString();
     const $ = id => document.getElementById(id);
 
-    // 官方精准 POS 阶梯
+    // 精准阶梯 POS
     function getPosRate(balance) {
         if (balance < 100) return 0;
-        if (balance <= 10000) return 0.003;   // 1000-10000: 3‰ 
-        if (balance <= 100000) return 0.004;  // 10001-10万: 4‰
-        return 0.005;                         // 10.1万以上: 5‰
+        if (balance <= 10000) return 0.003;   
+        if (balance <= 100000) return 0.004;  
+        return 0.005;                         
     }
 
-    // 官方精准 VIP 体系
+    // 精准 VIP 体系，严格考核伞下
     function getVIPInfo(u_value) {
         if (u_value >= 15000000) return {level: 6, rate: 0.90};
         if (u_value >= 6000000) return {level: 5, rate: 0.75};
@@ -240,10 +241,25 @@
         return {level: 0, rate: 0};
     }
 
+    function calculateSavings(targetU, currentPrice) {
+        let targetDownlineR1 = targetU / currentPrice;
+        let baselineAInit = targetDownlineR1 * 0.1 / 3;
+        let regularBudgetR1 = targetDownlineR1 + baselineAInit;
+        let regularBudgetU = regularBudgetR1 * currentPrice;
+
+        let bInit = targetDownlineR1 / 2;
+        let aInit = (bInit * 0.1) / 3;
+        let cOOP = bInit - (bInit * 0.1 - aInit);
+        let optimalBudgetR1 = aInit + bInit + cOOP;
+        let optimalBudgetU = optimalBudgetR1 * currentPrice;
+        
+        return regularBudgetU - optimalBudgetU;
+    }
+
     function snapToV(targetU) {
         let currentPrice = parseFloat($('sl_curr_price').value);
         let targetDownlineR1 = targetU / currentPrice; 
-        let optimalBudgetR1 = targetDownlineR1 * (59/60); 
+        let optimalBudgetR1 = targetDownlineR1 * (59/60); // 快捷估算，59/60最接近优化比率
         $('sl_pure_tokens').value = Math.ceil(optimalBudgetR1);
         runCalculations();
     }
@@ -258,101 +274,103 @@
         $('txt_yearend_price').innerText = yearEndPrice.toFixed(2);
         $('txt_tar_price').innerText = targetPrice.toFixed(2);
         
-        let walletTotalR1 = parseFloat($('sl_pure_tokens').value); 
-        let pfBudgetU = walletTotalR1 * currentPrice; 
-        $('txt_pure_tokens').innerText = fmt(walletTotalR1) + " R1";
-        $('txt_pure_budget_u').innerText = "折合需备法币: " + fmt(pfBudgetU) + " U";
+        $('snap_v1_save').innerText = `省 ${fmt(calculateSavings(50000, currentPrice))} U`;
+        $('snap_v2_save').innerText = `省 ${fmt(calculateSavings(150000, currentPrice))} U`;
+        $('snap_v3_save').innerText = `省 ${fmt(calculateSavings(500000, currentPrice))} U`;
+        $('snap_v4_save').innerText = `省 ${fmt(calculateSavings(2000000, currentPrice))} U`;
 
-        // 第 0 天资金循环算法
+        let walletTotalR1 = parseFloat($('sl_pure_tokens').value); 
+        $('txt_pure_tokens').innerText = fmt(walletTotalR1) + " R1";
+
+        // 第 0 天建仓逻辑
         let bInitR1 = walletTotalR1 * (30 / 59);
         let cInitR1 = bInitR1;
+        let actualDownlineR1 = bInitR1 + cInitR1;
+
+        let baselineAInitR1 = actualDownlineR1 * 0.1 / 3;
+        let regularBudgetR1 = actualDownlineR1 + baselineAInitR1;
+        let regularBudgetU = regularBudgetR1 * currentPrice;
+        $('txt_pure_budget_u').innerText = "若不抵扣，原需准备法币: " + fmt(regularBudgetU) + " U";
+
         let aInitR1 = (bInitR1 * 0.1) / 3;
         let aReinvest1 = (cInitR1 * 0.1) / 3;
         let cashFromB = (bInitR1 * 0.1) - aReinvest1;
         let cOutOfPocket = cInitR1 - cashFromB;
 
-        let totalR1Spent = aInitR1 + bInitR1 + cOutOfPocket;
-        let actualCostU = totalR1Spent * currentPrice;
+        let optimalBudgetR1 = aInitR1 + bInitR1 + cOutOfPocket;
+        let actualCostU = optimalBudgetR1 * currentPrice;
+
+        $('opt_result').innerText = `极客打法为您省下 ${fmt(regularBudgetU - actualCostU)} U !`;
 
         let stepHtml = '';
         stepHtml += `<div class="step-item"><div class="step-action"><span class="step-num">1</span><div>主号A建底</div></div><div style="text-align:right"><span class="step-val">${fmt(aInitR1)} R1</span><br><span class="wallet-deduct">- ${fmt(aInitR1)} R1</span></div></div>`;
-        stepHtml += `<div class="step-item"><div class="step-action"><span class="step-num">2</span><div>拉满大区 B<br><span style="font-size:10px;color:var(--gold)">A秒拿直推 ${fmt(bInitR1*0.1)} R1</span></div></div><div style="text-align:right"><span class="step-val">${fmt(bInitR1)} R1</span><br><span class="wallet-deduct">- ${fmt(bInitR1)} R1</span></div></div>`;
-        stepHtml += `<div class="step-item"><div class="step-action"><span class="step-num">3</span><div>用刚收到的利润复投A</div></div><div style="text-align:right"><span class="step-val step-highlight">复投 ${fmt(aReinvest1)} R1</span><br><span class="wallet-deduct" style="color:var(--text-sub)">纯利润抵扣</span></div></div>`;
-        stepHtml += `<div class="step-item"><div class="step-action"><span class="step-num">4</span><div>拉满小区 C<br><span style="font-size:10px;color:var(--safe-color)">抵扣手里剩余利润 ${fmt(cashFromB)} R1</span></div></div><div style="text-align:right"><span class="step-val">${fmt(cInitR1)} R1</span><br><span class="wallet-deduct">- ${fmt(cOutOfPocket)} R1</span></div></div>`;
+        stepHtml += `<div class="step-item"><div class="step-action"><span class="step-num">2</span><div>满配大区 B</div></div><div style="text-align:right"><span class="step-val">${fmt(bInitR1)} R1</span><br><span class="wallet-deduct">- ${fmt(bInitR1)} R1</span></div></div>`;
+        stepHtml += `<div class="step-item"><div class="step-action"><span class="step-num">3</span><div>用赚到的B直推复投A</div></div><div style="text-align:right"><span class="step-val step-highlight">复投 ${fmt(aReinvest1)} R1</span><br><span class="wallet-deduct" style="color:var(--text-sub)">纯利支付 (0消耗)</span></div></div>`;
+        stepHtml += `<div class="step-item"><div class="step-action"><span class="step-num">4</span><div>冲刺小区 C (现金抵扣)</div></div><div style="text-align:right"><span class="step-val">${fmt(cInitR1)} R1</span><br><span class="wallet-deduct">- ${fmt(cOutOfPocket)} R1</span></div></div>`;
         
-        let aBalTemp = aInitR1 + aReinvest1;
         let initial_b_u = bInitR1 * currentPrice;
         let initial_c_u = cInitR1 * currentPrice;
         let initial_total_u = initial_b_u + initial_c_u;
 
-        // 封装每日复杂结算引擎
-        function calcDailyIncome(aBal, bBal, cBal, bU, cU, isCompound) {
+        // V5.0 极差平级算法封装
+        function calcDailyIncome(aBal, bBal, cBal, bU, cU) {
             let posA = aBal * getPosRate(aBal);
             let posB = bBal * getPosRate(bBal);
             let posC = cBal * getPosRate(cBal);
             
             let vA = getVIPInfo(bU + cU);
+            // 核心：B和C的VIP等级取决于各自伞下U值（bU, cU 实际上是复投增量，初始为0）
             let vB = getVIPInfo(bU);
             let vC = getVIPInfo(cU);
 
+            // 极差拦截
             let diffB = Math.max(0, vA.rate - vB.rate);
             let diffC = Math.max(0, vA.rate - vC.rate);
 
             let accel_diff = (posB * diffB) + (posC * diffC);
 
+            // 平级博弈 (假设V3及以上才可能有平级奖10%)
             let peer_bonus = 0;
             if (vA.level >= 3) {
                 if (vB.level === vA.level) peer_bonus += (posB * vB.rate) * 0.10;
                 if (vC.level === vA.level) peer_bonus += (posC * vC.rate) * 0.10;
             }
-            
-            // 只有底层选择复投时，A号才会产生这笔额外的10%直推奖
-            let a_direct_income = isCompound ? (posB + posC) * 0.10 : 0;
 
             return {
                 posA: posA, posB: posB, posC: posC,
                 vA: vA, vB: vB, vC: vC,
-                a_direct: a_direct_income,
                 diff_income: accel_diff,
                 peer_income: peer_bonus,
-                a_total: posA + a_direct_income + accel_diff + peer_bonus
+                a_total: posA + accel_diff + peer_bonus
             };
         }
 
-        // 测算次日 A 需预留的防烧伤额度
-        let d1 = calcDailyIncome(aBalTemp, bInitR1, cInitR1, initial_b_u, initial_c_u, currentStrategy === 'compound');
+        let aBalTemp = aInitR1 + aReinvest1;
+        // 注意：第 0 天 B和C的伞下U值是 0，因为他们自己没复投
+        let d1 = calcDailyIncome(aBalTemp, bInitR1, cInitR1, 0, 0);
         let aReinvest2 = d1.a_total / 3;
 
-        stepHtml += `<div class="step-item"><div class="step-action"><span class="step-num">5</span><div>A从C的直推里扣留明日防爆</div></div><div style="text-align:right"><span class="step-val step-highlight">扣留 ${fmt(aReinvest2)} R1</span></div></div>`;
+        stepHtml += `<div class="step-item"><div class="step-action"><span class="step-num">5</span><div>A从C直推中扣留明日防爆仓</div></div><div style="text-align:right"><span class="step-val step-highlight">扣留 ${fmt(aReinvest2)} R1</span></div></div>`;
         
         let finalCashOutR1 = (cInitR1 * 0.1) - aReinvest2;
-        stepHtml += `<div class="step-item" style="border-top:1px solid rgba(0, 208, 132, 0.4); padding-top:12px; margin-top:4px;"><div class="step-action">🎉 结余提现 (赚回法币现金)</div><span class="step-val" style="color:var(--safe-color)">+ ${fmt(finalCashOutR1)} R1</span></div>`;
+        stepHtml += `<div class="step-item" style="border-top:1px solid rgba(0, 208, 132, 0.4); padding-top:12px; margin-top:4px;"><div class="step-action">🎉 结余提现 (赚回真金白银)</div><span class="step-val" style="color:var(--safe-color)">+ ${fmt(finalCashOutR1)} R1</span></div>`;
 
         $('pf_setup_steps').innerHTML = stepHtml;
-        $('pf_matrix_type').innerText = d1.vA.level > 0 ? `首日直达 V${d1.vA.level}` : "基础双轨";
+        $('pf_matrix_type').innerText = d1.vA.level > 0 ? `极限循环矩阵 (首日登顶V${d1.vA.level})` : "极限循环矩阵 (普通)";
 
         let totalPocketedU = finalCashOutR1 * currentPrice;
         $('pf_net_cost').innerText = fmt(actualCostU - totalPocketedU) + " U";
 
         // 更新透视面板
         $('xray_a_pos').innerText = fmt(d1.posA) + " R1";
-        $('xray_a_direct').innerText = fmt(d1.a_direct) + " R1";
-        if(currentStrategy === 'compound') {
-            $('lbl_direct_bonus').innerHTML = `2. 伞下复投新增直推奖 (10%) <span class="badge peer" style="background:rgba(255,190,11,0.2);color:var(--gold);border-color:var(--gold)">复投触发</span>`;
-            $('xray_a_direct').style.color = "var(--gold)";
-        } else {
-            $('lbl_direct_bonus').innerHTML = `2. 伞下复投新增直推奖 <span style="font-size:10px;color:#888">(提现模式不触发)</span>`;
-            $('xray_a_direct').style.color = "#888";
-        }
-        
-        $('xray_a_diff').innerText = fmt(d1.diff_income) + " R1 " + (d1.diff_income > 0 ? `(吃极差)` : `(被平级拦截)`);
+        $('xray_a_diff').innerText = fmt(d1.diff_income) + " R1 " + (d1.diff_income > 0 ? `(全额吃极差)` : `(被平级拦截)`);
         $('xray_a_diff').style.color = d1.diff_income > 0 ? "var(--primary)" : "#888";
         
         $('xray_a_peer').innerText = fmt(d1.peer_income) + " R1";
         if(d1.peer_income > 0) {
-            $('lbl_peer_bonus').innerHTML = `4. 太阳线深度平级奖 <span class="badge peer">触发!</span>`;
+            $('lbl_peer_bonus').innerHTML = `3. 太阳线深度平级奖 <span class="badge peer">触发!</span>`;
         } else {
-            $('lbl_peer_bonus').innerText = `4. 太阳线深度平级奖 (未触发)`;
+            $('lbl_peer_bonus').innerText = `3. 太阳线深度平级奖 (未触发)`;
         }
 
         $('xray_a_total').innerText = fmt(d1.a_total) + " R1";
@@ -361,19 +379,21 @@
 
         // 策略说明分流
         if (currentStrategy === 'compound') {
-            $('title_re_cash').innerHTML = "结余可提现 (或横向开小号)";
-            $('pf_re_cash').innerText = fmt(d1.a_total - aReinvest2) + " R1";
+            let cash_left = d1.a_total - aReinvest2; 
+            $('title_re_cash').innerHTML = "结余可提现 (或备用开新线)";
+            $('pf_re_cash').innerText = fmt(cash_left) + " R1";
             $('pf_re_cash').style.color = "var(--gold)";
             $('box_re_cash').style.borderColor = "rgba(255,190,11,0.3)";
             
-            $('lbl_recoup').innerText = "🔥 一年期可提现/开号储备金 (按年末价)";
+            $('lbl_recoup').innerText = "🔥 一年期可提现/开线备用金 (按年末价)";
             $('lbl_recoup').style.color = "var(--gold)";
             $('pf_recoup').style.color = "var(--gold)";
 
-            $('pf_strategy_notice').innerHTML = "<b>🔥 太阳线深度裂变战略：</b><br>1. <b>烧伤剧增：</b>底层复投导致A号每天都会产生新的10%直推奖，A的防烧伤补仓压力会变大。<br>2. <b>极差与平级博弈：</b>随着B和C复投做大，它们迟早会追平A的级别，极差清零。当达到 V3 时，系统激活【平级奖】。你右侧提现的结余现金流，可以用来在A伞下横向开启 D, E, F 等无限小号，无缝垫高U值冲刺 V6！";
+            $('pf_strategy_notice').innerHTML = "<b>🔥 太阳线深度裂变战略 (冲刺V6)：</b><br>1. <b>防烧伤骤降：</b>底层复投直推奖归B/C所有，A号不烧伤！A仅需为极差/平级买单。<br>2. <b>极差平级动态博弈：</b>随着复投，B和C迟早追平A，极差会归零！但 V3+ 将激活【平级奖】。利用结余现金在A伞下横向开线，是破解拦截、保持极差的唯一法门。";
         } else {
+            let safe_cash_daily = (d1.posB + d1.posC) + (d1.a_total - aReinvest2);
             $('title_re_cash').innerHTML = "每日安全总提现<br><span style='font-size:9px;color:#ccc'>(主号结余 + 底层全提)</span>";
-            $('pf_re_cash').innerText = fmt((d1.posB + d1.posC) + (d1.a_total - aReinvest2)) + " R1";
+            $('pf_re_cash').innerText = fmt(safe_cash_daily) + " R1";
             $('pf_re_cash').style.color = "var(--safe-color)";
             $('box_re_cash').style.borderColor = "rgba(0, 208, 132, 0.3)";
             
@@ -381,47 +401,52 @@
             $('lbl_recoup').style.color = "var(--safe-color)";
             $('pf_recoup').style.color = "var(--safe-color)";
 
-            $('pf_strategy_notice').innerHTML = "<b>🛡️ 纯提现稳健养老战略：</b><br>底层不复投，A号不拿新的直推奖，烧伤压力极小，极差优势永远稳固。每天将绝大部分利息直接落袋为安。回本极快，极其抗风险，适合求稳的大户。";
+            $('pf_strategy_notice').innerHTML = "<b>🛡️ 纯提现稳健养老战略：</b><br>B和C的伞下不发生复投增长（永远V0），A号永远处于极差霸主地位。每天将底层利息和主号结余全额变现，回本飞快。适合大资金求稳策略。";
         }
 
         // ================= 模拟后续 1 年的动态推演 =================
         let daysPf = 0;
-        let b_u_accum = initial_b_u;
-        let c_u_accum = initial_c_u;
-        let bBalPf = bInitR1, cBalPf = cInitR1;
+        let b_downline_u = 0; // 初始B伞下是0
+        let c_downline_u = 0; // 初始C伞下是0
+        let bBalPf = bInitR1, cBalPf = cInitR1; 
         
-        // 修复：A账号的本金池。A的本金每天依靠再投资(reinvest2)增长
         let aBalPf = aInitR1 + aReinvest1 + aReinvest2; 
         
-        let totalCashedPf = finalCashOutR1; // 首日剩下的直接进现金池
+        let totalCashedPf = finalCashOutR1; 
         let finalVipA = d1.vA;
         let isCompound = (currentStrategy === 'compound');
+        
+        // 用于记录 B 的最终VIP等级
+        let finalVipB = d1.vB;
 
         while(daysPf < 365) {
             daysPf++;
-            let daily = calcDailyIncome(aBalPf, bBalPf, cBalPf, b_u_accum, c_u_accum, isCompound);
-            finalVipA = daily.vA;
+            let daily = calcDailyIncome(aBalPf, bBalPf, cBalPf, b_downline_u, c_downline_u);
+            finalVipA = daily.vA; 
+            finalVipB = daily.vB;
 
             if (isCompound) {
-                b_u_accum += daily.posB * currentPrice;
-                c_u_accum += daily.posC * currentPrice;
-                bBalPf += daily.posB; 
+                // 复投逻辑：底层产生的POS去到B1, C1，所以B和C的伞下U值增加
+                b_downline_u += daily.posB * currentPrice;
+                c_downline_u += daily.posC * currentPrice;
+                bBalPf += daily.posB; // 合并统计总资产
                 cBalPf += daily.posC;
             } else {
+                // 提现逻辑：直接进入现金池，伞下U值不长
                 totalCashedPf += (daily.posB + daily.posC);
             }
 
-            // A 的补仓动作
+            // A 补仓逻辑
             let re_invest_a = daily.a_total / 3;
-            aBalPf += re_invest_a; // A的生息本金增加
+            aBalPf += re_invest_a; 
             
-            totalCashedPf += (daily.a_total - re_invest_a); // A结余提现
+            // A 结余现金提现
+            totalCashedPf += (daily.a_total - re_invest_a); 
         }
 
         let badgeHtml = '';
-        if (finalVipA.level > 0) badgeHtml += `<span class="badge">主号达成 V${finalVipA.level}</span> `;
-        let finalVipB = getVIPInfo(b_u_accum);
-        if (finalVipB.level > 0) badgeHtml += `<span class="badge" style="background:#1c2236; color:#888;">底层冲至 V${finalVipB.level}</span>`;
+        if (finalVipA.level > 0) badgeHtml += `<span class="badge">A号最终 V${finalVipA.level}</span> `;
+        if (finalVipB.level > 0) badgeHtml += `<span class="badge" style="background:#1c2236; color:#888;">大区最终 V${finalVipB.level}</span>`;
         if (badgeHtml === '') badgeHtml = `<span class="badge" style="background:#333;color:#888;">未达成V级</span>`;
         $('pf_v_badges').innerHTML = badgeHtml;
 
