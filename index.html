@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>R1 太阳线实盘计算器 V5.4</title>
+    <title>R1 太阳线实盘沙盘 V5.5</title>
     <style>
         :root {
             --bg: #050a14;
@@ -15,7 +15,6 @@
             --text-sub: #8b9bb4;
             --border: rgba(255,255,255,0.08);
             --input-bg: #0a0e1a;
-            --matrix-color: #9d4edd;
             --reinvest-color: #ff5470;
             --safe-color: #00d084;
             --peer-color: #f72585;
@@ -67,15 +66,6 @@
         .layout-box.alert { border-color: rgba(255, 84, 112, 0.5); background: rgba(255, 84, 112, 0.1); }
         .layout-box.alert .val { color: var(--reinvest-color); }
         
-        .step-list { margin-top: 10px; font-size: 12px; color: #ddd; }
-        .step-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed rgba(255,255,255,0.1); }
-        .step-item:last-child { border-bottom: none; }
-        .step-action { display: flex; align-items: center; gap: 8px; }
-        .step-num { background: var(--secondary); color: #fff; min-width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; }
-        .step-val { font-weight: bold; color: var(--primary); text-align: right;}
-        .step-highlight { color: var(--gold); }
-        .wallet-deduct { color: #ff6b6b; font-weight: bold; font-family: monospace; font-size: 11px;}
-
         .badge { background: rgba(255,190,11,0.2); color: var(--gold); padding: 2px 6px; border-radius: 4px; font-size: 10px; }
         .badge.peer { background: rgba(247, 37, 133, 0.2); color: var(--peer-color); border: 1px solid rgba(247, 37, 133, 0.4); }
         .badge.de { background: rgba(181, 23, 158, 0.2); color: var(--de-color); border: 1px solid rgba(181, 23, 158, 0.4); }
@@ -85,34 +75,43 @@
         .snap-btn { flex: 1; min-width: 22%; background: rgba(0, 242, 234, 0.1); border: 1px solid rgba(0, 242, 234, 0.3); color: var(--primary); border-radius: 6px; padding: 8px 0; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; text-align: center; line-height: 1.4;}
         .snap-btn:active { background: var(--primary); color: #000; }
         
-        .milestone-box { background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; margin-top: 12px; font-size: 12px; line-height: 1.8; color: #fff; max-height: 180px; overflow-y: auto; border: 1px solid rgba(255,190,11,0.2);}
+        .milestone-box { background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; margin-top: 12px; font-size: 12px; line-height: 1.8; color: #fff; max-height: 220px; overflow-y: auto; border: 1px solid rgba(255,190,11,0.2);}
     </style>
 </head>
 <body>
 
 <header>
-    <h1>R1 智能太阳线沙盘 V5.4</h1>
-    <p>AI动态路由控制 | 完美规避极差拦截</p>
+    <h1>R1 太阳线实盘沙盘 V5.5</h1>
+    <p>AI智能阀门路由 | 突破365天时间锁</p>
 </header>
 
 <div class="card" style="border-color: rgba(255, 84, 112, 0.4);">
     <div class="card-head">
-        <span class="card-title">🌐 核心定价 & 战略路由选择</span>
+        <span class="card-title">🌐 宏观战略与时空推演</span>
         <span class="badge" style="background: rgba(255, 84, 112, 0.2); color: var(--reinvest-color);">1:1 市价严算</span>
     </div>
     
     <div class="input-group">
         <div class="label-row">
-            <span style="font-weight:bold; color:#fff;">系统复投AI路由策略：</span>
+            <span style="font-weight:bold; color:#fff;">系统复投 AI 路由策略：</span>
         </div>
         <select id="sel_strategy" onchange="runCalculations()">
-            <option value="compound_smart">🤖 智能太阳线 (动态横向开线，誓保极差)</option>
-            <option value="compound_deep">🔥 垂直深挖线 (死磕B/C，冲平级大奖)</option>
-            <option value="cash">👉 每日全提现 (稳健养老，零拦截焦虑)</option>
+            <option value="compound_smart">🤖 智能太阳线 (动态切线，保极差大局)</option>
+            <option value="compound_deep">🔥 垂直深挖线 (死磕B/C，测算平级拐点)</option>
+            <option value="cash">👉 每日全提现 (稳健养老，零极差焦虑)</option>
         </select>
     </div>
 
-    <div class="input-group">
+    <div class="input-group" style="padding: 10px; background: rgba(0, 242, 234, 0.1); border-radius: 8px; border: 1px dashed var(--primary);">
+        <div class="label-row">
+            <span style="font-weight:bold; color:var(--primary)">⏳ 测算推演时间轴 (突破一年局限)</span>
+            <span id="txt_days" style="color:var(--primary); font-weight:bold; font-size:16px;">365 天</span>
+        </div>
+        <input type="range" id="sl_days" min="90" max="1095" step="15" value="365" oninput="runCalculations()">
+        <div style="font-size:10px; color:#888; margin-top:4px;">*拉到 500 天以上，方能见证 AI 智能切换路由的威力！</div>
+    </div>
+
+    <div class="input-group" style="margin-top: 15px;">
         <div class="label-row">
             <span>首期拿币均价 (U)</span>
             <span id="txt_curr_price" style="color:var(--primary)">0.50</span>
@@ -122,7 +121,7 @@
     
     <div class="input-group">
         <div class="label-row">
-            <span>年末变现预期 (U) <span style="font-size:10px;color:#888;">*结算现金</span></span>
+            <span>年末变现预期 (U)</span>
             <span id="txt_yearend_price" style="color:var(--safe-color)">0.80</span>
         </div>
         <input type="range" id="sl_yearend_price" min="0.1" max="5.0" step="0.01" value="0.8" oninput="runCalculations()">
@@ -130,7 +129,7 @@
 
     <div class="input-group" style="margin-bottom: 0;">
         <div class="label-row">
-            <span>抛售终局定价 (U) <span style="font-size:10px;color:#888;">*结算底仓</span></span>
+            <span>抛售终局定价 (U)</span>
             <span id="txt_tar_price" style="color:var(--gold)">1.50</span>
         </div>
         <input type="range" id="sl_tar_price" min="0.5" max="10.0" step="0.1" value="1.5" oninput="runCalculations()">
@@ -163,7 +162,7 @@
 
 <div class="reinvest-box">
     <div class="reinvest-title">
-        <span>🛡️ 次日产出透视与精准补仓指令</span>
+        <span>🛡️ 次日产出透视与精确防烧伤</span>
         <span class="badge outline" id="pf_daily_yield_lbl">预估总产: 0 R1</span>
     </div>
     
@@ -178,7 +177,7 @@
             <span class="xray-hl" id="xray_a_diff" style="color:var(--primary)">0 R1</span>
         </div>
         <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:11px; display:none;" id="row_de_bonus">
-            <span style="color:var(--de-color)">★ 横向 D/E 线直推提成 (产生高额烧伤)</span>
+            <span style="color:var(--de-color)">★ AI 切线：D/E线 新增直推提成</span>
             <span class="xray-hl" id="xray_a_de" style="color:var(--de-color)">0 R1</span>
         </div>
         <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:11px;">
@@ -205,12 +204,12 @@
 
 <div class="summary-box">
     <div style="font-size: 13px; color: var(--primary); font-weight: bold; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; display: flex; justify-content: space-between;">
-        <span>💰 365天 真实时间轴沙盘推演</span> 
+        <span id="lbl_timeline_title">💰 365天 真实时间轴沙盘推演</span> 
     </div>
     
     <div class="res-row"><span class="res-lbl">建仓真实净成本 (总支出 - 首日抵扣)</span><span class="res-val" id="pf_net_cost" style="color:var(--primary)">0 U</span></div>
-    <div class="res-row"><span class="res-lbl">一年期可提现现金流 (按年末价)</span><span class="res-val" id="pf_recoup" style="color:var(--safe-color)">0 U</span></div>
-    <div class="res-row" style="border-bottom:none;"><span class="res-lbl">全网3倍出局终极估值 (按抛售价)</span><span class="res-val huge" id="pf_max_profit">0 U</span></div>
+    <div class="res-row"><span class="res-lbl">周期末 可提现现金流结余 (按预期价)</span><span class="res-val" id="pf_recoup" style="color:var(--safe-color)">0 U</span></div>
+    <div class="res-row" style="border-bottom:none;"><span class="res-lbl">底层账号3倍出局终极估值 (按抛售价)</span><span class="res-val huge" id="pf_max_profit">0 U</span></div>
     
     <div class="milestone-box" id="timeline_box">
         </div>
@@ -265,10 +264,13 @@
         let yearEndPrice = parseFloat($('sl_yearend_price').value); 
         let targetPrice = parseFloat($('sl_tar_price').value);
         let strategy = $('sel_strategy').value; 
+        let total_days = parseInt($('sl_days').value);
         
         $('txt_curr_price').innerText = currentPrice.toFixed(2);
         $('txt_yearend_price').innerText = yearEndPrice.toFixed(2);
         $('txt_tar_price').innerText = targetPrice.toFixed(2);
+        $('txt_days').innerText = total_days + " 天";
+        $('lbl_timeline_title').innerText = `💰 ${total_days}天 真实时间轴沙盘推演`;
         
         $('snap_v1_save').innerText = `省 ${fmt(calculateSavings(50000, currentPrice))} U`;
         $('snap_v2_save').innerText = `省 ${fmt(calculateSavings(150000, currentPrice))} U`;
@@ -294,13 +296,12 @@
         let optimalBudgetR1 = aInitR1 + bInitR1 + cOutOfPocket;
         let actualCostU = optimalBudgetR1 * currentPrice;
 
-        // 动态战术布线区 UI 变更
         if(strategy === 'compound_smart') {
             $('strategy_blueprint').innerHTML = `
                 <div class="matrix-title"><span>🤖 智能太阳线路由系统</span><span class="badge" style="background: rgba(181, 23, 158, 0.3); color:var(--text-main)">AI 监控中</span></div>
                 <div style="font-size:12px; color:#ddd; line-height:1.6;">
                     <p><b>执行方案：</b></p>
-                    <p>1. 平时将利息投入 B/C 伞下，躲避直推烧伤。</p>
+                    <p>1. 平时将利息投入 B/C 伞下，A不拿直推不烧伤。</p>
                     <p>2. <b>【AI 预警】</b>当监测到 B区即将追平 A号导致极差归零时，系统会提示立刻将资金投入横向新开的 <b>D线/E线</b>！</p>
                     <p>3. 投入D/E虽会增加当日A的烧伤压力，但能瞬间拉高A级，死保全网极差霸主地位！</p>
                 </div>
@@ -312,7 +313,7 @@
                 <div style="font-size:12px; color:#ddd; line-height:1.6;">
                     <p><b>执行方案：</b></p>
                     <p>1. 每日将利息永远只投入 B1 和 C1，放弃横向扩张。</p>
-                    <p>2. <b>【后果预演】</b>极差迟早被拦截归零。但当全网冲上 V3 后，主号A能开启稳定的10%平级大奖。</p>
+                    <p>2. <b>【后果预演】</b>大区迟早追平甚至拦截极差。但当全网冲上 V3 后，主号A能开启稳定的10%平级大奖。</p>
                 </div>
             `;
             $('row_de_bonus').style.display = 'none';
@@ -332,23 +333,21 @@
         let initial_c_u = cInitR1 * currentPrice;
         let aBalTemp = aInitR1 + aReinvest1;
 
-        // V5.4 智能结算引擎，加入 D/E 横向线
         function getDailyState(aBal, bBal, cBal, deBal, bDownU, cDownU, deDownU) {
             let posA = aBal * getPosRate(aBal);
             let posB = bBal * getPosRate(bBal);
             let posC = cBal * getPosRate(cBal);
-            let posDE = deBal * getPosRate(deBal); // DE的POS
+            let posDE = deBal * getPosRate(deBal); 
             
             let a_total_u = initial_b_u + initial_c_u + bDownU + cDownU + deDownU;
             let vA = getVIPInfo(a_total_u);
             
             let vB = getVIPInfo(bDownU);
             let vC = getVIPInfo(cDownU);
-            // DE 是横向无数小号合集，个体极小，均视为 V0
 
             let diffB = Math.max(0, vA.rate - vB.rate);
             let diffC = Math.max(0, vA.rate - vC.rate);
-            let diffDE = Math.max(0, vA.rate - 0); // 对DE独吃满额极差
+            let diffDE = Math.max(0, vA.rate - 0); // DE视为V0
 
             let accel_diff = (posB * diffB) + (posC * diffC) + (posDE * diffDE);
 
@@ -375,7 +374,6 @@
         let totalPocketedU = finalCashOutR1 * currentPrice;
         $('pf_net_cost').innerText = fmt(actualCostU - totalPocketedU) + " U";
 
-        // 更新透视面板
         $('xray_a_pos').innerText = fmt(d1.posA) + " R1";
         $('xray_a_diff').innerText = fmt(d1.diff_income) + " R1 " + (d1.diff_income > 0 ? `(吃极差)` : `(被拦截)`);
         $('xray_a_diff').style.color = d1.diff_income > 0 ? "var(--primary)" : "#888";
@@ -403,11 +401,9 @@
             $('box_re_cash').style.borderColor = "rgba(255,190,11,0.3)";
         }
 
-        // ================= 365 天时间轴核心引擎 =================
+        // ================= X 天时间轴核心引擎 =================
         let daysPf = 0;
         let b_downline_u = 0, c_downline_u = 0, de_downline_u = 0; 
-        
-        // 资产池：在宏观推演中，我们将投入底层的资金合并记入大池，用以产生POS
         let bBalPf = bInitR1, cBalPf = cInitR1, deBalPf = 0; 
         let aBalPf = aInitR1 + aReinvest1 + aReinvest2; 
         
@@ -421,7 +417,7 @@
         
         if(currentVipA > 0) milestones.push(`<span style="color:var(--gold)">✅ 第 0 天：主号 A 强势达成 V${currentVipA}！</span>`);
 
-        while(daysPf < 365) {
+        while(daysPf < total_days) {
             daysPf++;
             let daily = getDailyState(aBalPf, bBalPf, cBalPf, deBalPf, b_downline_u, c_downline_u, de_downline_u);
             
@@ -449,16 +445,14 @@
                 c_downline_u += (total_investable/2) * currentPrice;
                 bBalPf += total_investable/2; 
                 cBalPf += total_investable/2;
-                totalCashedPf += total_investable * 0.10; // B/C 赚直推
+                totalCashedPf += total_investable * 0.10; 
             } 
             else if (strategy === 'compound_smart') {
-                // AI 路由判断：如果这笔钱投给B，会导致B的VIP等级追上A，则立刻路由给DE
                 let test_b_u = b_downline_u + (total_investable/2) * currentPrice;
                 let test_a_u = initial_b_u + initial_c_u + test_b_u + c_downline_u + de_downline_u + (total_investable/2)*currentPrice;
                 
                 let will_tie = getVIPInfo(test_b_u).level >= getVIPInfo(test_a_u).level;
                 
-                // 为了防止在V0阶段过早路由，只有A是V1以上且即将被追平时才横向开线
                 if(will_tie && getVIPInfo(test_a_u).level > 0) {
                     if(current_route !== 'DE') {
                         milestones.push(`<span style="color:var(--de-color)">🛡️ 第 ${daysPf} 天：极差预警！切断B区供血，资金横排 D/E线！</span>`);
@@ -466,7 +460,7 @@
                     }
                     de_downline_u += total_investable * currentPrice;
                     deBalPf += total_investable;
-                    a_direct_income = total_investable * 0.10; // 核心：D/E是A的直属，A拿10%直推，增加烧伤
+                    a_direct_income = total_investable * 0.10; // DE是A的直属，增加A的直推提成烧伤
                 } else {
                     if(current_route !== 'BC' && daysPf > 1) {
                         milestones.push(`<span style="color:var(--safe-color)">🔄 第 ${daysPf} 天：危机解除，资金回流 B/C 区苟发育。</span>`);
@@ -480,14 +474,13 @@
                 }
             }
 
-            // A 号结算与补仓
             let total_a_income = daily.a_total + a_direct_income;
             let re_invest_a = total_a_income / 3;
             aBalPf += re_invest_a; 
             totalCashedPf += (total_a_income - re_invest_a); 
         }
 
-        if(milestones.length === 0) milestones.push(`1年内风平浪静，未发生级别变动。`);
+        if(milestones.length === 0) milestones.push(`推演期内风平浪静，未发生级别变动。`);
         $('timeline_box').innerHTML = milestones.join('<br>');
 
         $('pf_recoup').innerText = fmt(totalCashedPf * yearEndPrice) + " U";
