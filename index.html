@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aoulink 收益生态测算系统 </title>
+    <title>Aoulink 收益生态测算系统</title>
     <style>
         :root {
             --bg-deep: #0a0c10;
@@ -160,7 +160,7 @@
 <div class="container">
     <div class="header">
         <h2>Aoulink 收益模型推演</h2>
-        <p>星火系统所有权 · 资产价值及团队收益精准测算</p>
+        <p>星火系统所有权 · 资产价值及满血 VIP 收益测算</p>
     </div>
 
     <div class="form-row">
@@ -171,12 +171,12 @@
         <div class="form-group">
             <label>团队伞下业绩 (U)</label>
             <div class="input-wrapper"><input type="number" id="teamAmount" value="29000"></div>
-            <span class="info-tag">用于合并计算总业绩</span>
+            <span class="info-tag">不扣级差，全额参与计算</span>
         </div>
     </div>
 
     <div class="form-group">
-        <label>达标 VIP 等级 (结合小区业绩考核选择)</label>
+        <label>达标 VIP 等级 (全量拿满该级分润)</label>
         <div class="input-wrapper">
             <select id="vipLevel">
                 <option value="0">V0 - 收益 0%</option>
@@ -196,8 +196,8 @@
         <label>投资周期</label>
         <div class="input-wrapper">
             <select id="cycle">
-                <option value="90">90 天 (每日额外赠送 0.25%本金的等值AOU)</option>
-                <option value="180">180 天 (每日额外赠送 0.5%本金的等值AOU)</option>
+                <option value="90">90 天 (送有效本金 0.25% 等值 AOU)</option>
+                <option value="180">180 天 (送有效本金 0.5% 等值 AOU)</option>
                 <option value="7">7 天 (活动期暂不开放/测算专用)</option>
             </select>
         </div>
@@ -216,18 +216,18 @@
 
     <div class="checkbox-group">
         <input type="checkbox" id="isCompounding">
-        <label for="isCompounding">开启复投<br><span style="font-size:11px; color:var(--text-sub);">7天: 收益仅换算等值币，不增法币本金<br>90/180天: 利润满100U全额并入本金实现复利</span></label>
+        <label for="isCompounding">开启复投<br><span style="font-size:11px; color:var(--text-sub);">7天: 收益仅换币，不增本金<br>90/180天: U利润满100全额并入本金实现复利</span></label>
     </div>
 
     <button onclick="calculate()">生成高精收益报告</button>
 
     <div class="result-box" id="resultBox">
         <div class="result-row">
-            <span>首日实际静态收益 (1%)</span>
+            <span>首日个人静态收益 (1%)</span>
             <span id="resDailyStatic">0.00 U</span>
         </div>
         <div class="result-row">
-            <span>首日 VIP 级差收益</span>
+            <span>首日 VIP 满血收益</span>
             <span id="resDailyVip">0.00 U</span>
         </div>
         <div class="result-row">
@@ -247,11 +247,11 @@
             <span id="resCoinValue">0.00 U</span>
         </div>
         <div class="result-row">
-            <span>提现手续费 (总资产3% + 1U)</span>
+            <span>提现损耗 (总资产3% + 1U)</span>
             <span id="resFee" style="color: #d9534f;">-0.00 U</span>
         </div>
         <div class="result-row">
-            <span>净理财总收益 (含VIP，已扣费)</span>
+            <span>净法币理财总收益 (已扣费)</span>
             <span id="resNetStatic">0.00 U</span>
         </div>
         
@@ -261,7 +261,7 @@
                 <span id="resFinalPrice">0.0000 U</span>
             </div>
             <div>
-                <span>生态总净收益 (理财+币增值):</span>
+                <span>生态综合净收益 (U+币):</span>
                 <span id="resGrandTotal">0.00 U</span>
             </div>
         </div>
@@ -293,31 +293,40 @@
         let firstDayCoin = 0;
 
         for (let day = 1; day <= cycle; day++) {
-            // 1. 基于当天的个人本金和团队总业绩，计算法币理财收益
-            let totalVolume = personalLP + teamInput; 
-            let dailyStatic = personalLP * 0.01; // 静态收益 1%
-            let dailyVip = totalVolume * 0.01 * vipRate; // VIP 级差收益
+            // ==========================================
+            // 模块一：法币理财收益计算（U本位）
+            // ==========================================
+            let totalVolume = personalLP + teamInput; // 总业绩动态计算（个人本金变大，总业绩也会变大）
+            let dailyStatic = personalLP * 0.01;      // 个人本金 1% 静态
             
-            // 法币利润进入未复投池
+            // 【无级差VIP逻辑】：不扣减任何大区业绩，直接按总业绩 * 1% * VIP比例 拿满！
+            let dailyVip = totalVolume * 0.01 * vipRate; 
+            
+            // 所有产生的U全部先放进“未复投利润池”
             unreinvestedProfit += (dailyStatic + dailyVip);
 
-            // 2. ★ 核心修正逻辑：计算当天空投币的 USDT 金本位价值
+            // ==========================================
+            // 模块二：空投代币价值提取与换算（金本位空投逻辑）
+            // ==========================================
             let dailyAouUsdtValue = 0;
             if (cycle === 7) {
-                // 7天模式：只有开启复投才给币，逻辑为当日收益(1%)作为投资金的1%折算
+                // 7天模式：只有开启复投时，才释放相当于本金 万分之一 的U价值去买币
                 if (isCompounding) {
-                    dailyAouUsdtValue = personalLP * 0.01 * 0.01; 
+                    dailyAouUsdtValue = personalLP * 0.0001; 
                 }
             } else if (cycle === 90) {
+                // 【90天逻辑】：每日空投 U 价值 = 当日有效本金 × 0.25%
                 dailyAouUsdtValue = personalLP * 0.0025;
             } else if (cycle === 180) {
+                // 【180天逻辑】：每日空投 U 价值 = 当日有效本金 × 0.5%
                 dailyAouUsdtValue = personalLP * 0.005;
             }
 
-            // 3. 将当日的 USDT 价值折算成实际的 AOU 币量
+            // 【币量折算】：将今日锁定的空投U价值，按今日飙升的实盘币价换算成真正到手的代币数量
             let dailyCoin = dailyAouUsdtValue > 0 ? (dailyAouUsdtValue / currentPrice) : 0;
+            totalCoins += dailyCoin;
 
-            // 记录首日数据供展示
+            // 记录首日数据用于界面展示
             if (day === 1) {
                 firstDayStatic = dailyStatic;
                 firstDayVip = dailyVip;
@@ -325,38 +334,40 @@
                 firstDayCoin = dailyCoin;
             }
 
-            totalCoins += dailyCoin;
-
-            // 4. 复投判定机制（满100U自动加仓，影响明日所有的计算基数）
+            // ==========================================
+            // 模块三：触发复利机制与次日环境刷新
+            // ==========================================
+            // 90/180天模式下：如果开启了复投，且利润池U >= 100
             if (isCompounding && cycle !== 7) {
-                // 7天模式不增加法币本金，故排除
                 if (unreinvestedProfit >= 100) {
-                    personalLP += unreinvestedProfit;
-                    unreinvestedProfit = 0; 
+                    personalLP += unreinvestedProfit; // 利润全额转本金！实现真正的滚雪球
+                    unreinvestedProfit = 0;           // 利润池清零
                 }
             }
 
-            // 5. 更新次日币价
+            // 刷新第二天的币价
             if (day < cycle) {
                 currentPrice *= (1 + increaseRate);
             }
         }
 
-        // --- 结算核算 ---
-        // 最终账户内法币总资产 = 最终膨胀后的个人本金 + 最后一轮未满100U的零散利润
+        // ==========================================
+        // 模块四：期末清算核销
+        // ==========================================
+        // 总资产 = 滚大的本金 + 零散的利润池
         const grossBalance = personalLP + unreinvestedProfit; 
         
-        // 提现手续费统一为：3%（最终总资产）+ 每次提现1U
+        // 提现手续费统一扣除：3% + 1U
         const withdrawalFee = (grossBalance * 0.03) + 1; 
         const netBalance = grossBalance - withdrawalFee;
         
-        // 净法币理财收益 = 提现到手金额 - 最初始投入的个人本金
+        // 净赚法币利润 = 提现到手的U - 投资时最初掏出的本金U
         const netStaticProfit = netBalance - lpInput; 
         
-        // 币的期末总价值
+        // 期末手中AOU的总价值 = 总币量 * 最后一天的币价
         const totalCoinValue = totalCoins * currentPrice;
         
-        // 综合总收益
+        // 最终生态大满贯收益 = 法币净利润 + 代币总价值
         const grandTotal = netStaticProfit + totalCoinValue;
 
         // --- 数据渲染 ---
