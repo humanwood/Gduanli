@@ -1,8 +1,8 @@
 // Cloudflare Pages 密码访问鉴权 - Basic Auth 基础认证
 export const onRequest = async (context) => {
   // 配置鉴权账号密码【修改这里即可】
-  const AUTH_USER = "admin";
-  const AUTH_PASS = "R1No.1";
+  const AUTH_USER = "aoulink";
+  const AUTH_PASS = "aou1wanbei";
 
   // 从请求头获取前端传入的授权信息
   const credentials = context.request.headers.get("Authorization");
