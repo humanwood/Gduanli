@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aoulink 收益生态测算系统 (含VIP体系)</title>
+    <title>Aoulink 收益生态测算系统 </title>
     <style>
         :root {
             --bg-deep: #0a0c10;
@@ -33,7 +33,7 @@
             border: 1px solid var(--border-color);
             border-radius: 16px;
             width: 100%;
-            max-width: 460px;
+            max-width: 480px;
             padding: 30px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
         }
@@ -102,13 +102,14 @@
             margin-right: 10px;
             cursor: pointer;
             position: relative;
+            flex-shrink: 0;
         }
         .checkbox-group input:checked { background-color: var(--gold-main); }
         .checkbox-group input:checked::after {
             content: '✔'; position: absolute; color: #000; font-size: 12px;
             top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold;
         }
-        .checkbox-group label { margin: 0; font-size: 14px; cursor: pointer; color: var(--gold-light); }
+        .checkbox-group label { margin: 0; font-size: 13px; cursor: pointer; color: var(--gold-light); line-height: 1.4; }
         
         button {
             width: 100%;
@@ -158,8 +159,8 @@
 
 <div class="container">
     <div class="header">
-        <h2>Aoulink 生态测算系统</h2>
-        <p>星火系统所有权 · 资产价值及团队收益预演</p>
+        <h2>Aoulink 收益模型推演</h2>
+        <p>星火系统所有权 · 资产价值及团队收益精准测算</p>
     </div>
 
     <div class="form-row">
@@ -204,25 +205,25 @@
 
     <div class="form-row">
         <div class="form-group">
-            <label>初始币价 (U)</label>
+            <label>初始币价 (U) - 保留4位</label>
             <div class="input-wrapper"><input type="number" id="initialPrice" value="0.1314" step="0.0001"></div>
         </div>
         <div class="form-group">
-            <label>日涨幅预估 (%)</label>
+            <label>日涨幅预估 (%) - 保留2位</label>
             <div class="input-wrapper"><input type="number" id="increaseRate" value="3.00" step="0.01"></div>
         </div>
     </div>
 
     <div class="checkbox-group">
         <input type="checkbox" id="isCompounding">
-        <label for="isCompounding">开启复投 (个人静态+VIP收益满100U自动并入本金)</label>
+        <label for="isCompounding">开启复投<br><span style="font-size:11px; color:var(--text-sub);">7天: 无限制，收益仅换算为币，不增加法币本金<br>90/180天: 利润满100U自动全额并入本金实现复利</span></label>
     </div>
 
-    <button onclick="calculate()">生成综合收益报告</button>
+    <button onclick="calculate()">生成高精收益报告</button>
 
     <div class="result-box" id="resultBox">
         <div class="result-row">
-            <span>首日个人静态收益 (1%)</span>
+            <span>首日实际静态收益 (1%)</span>
             <span id="resDailyStatic">0.00 U</span>
         </div>
         <div class="result-row">
@@ -242,11 +243,11 @@
             <span id="resCoinValue">0.00 U</span>
         </div>
         <div class="result-row">
-            <span>提现手续费 (3% + 1U)</span>
+            <span>提现手续费 (最终资产3% + 1U)</span>
             <span id="resFee" style="color: #d9534f;">-0.00 U</span>
         </div>
         <div class="result-row">
-            <span>净理财收益 (含个人+VIP,已扣费)</span>
+            <span>净静态总收益 (含VIP，已扣费)</span>
             <span id="resNetStatic">0.00 U</span>
         </div>
         
@@ -256,7 +257,7 @@
                 <span id="resFinalPrice">0.0000 U</span>
             </div>
             <div>
-                <span>生态总净收益 (理财+币增值):</span>
+                <span>生态总净收益 (静态+币增值):</span>
                 <span id="resGrandTotal">0.00 U</span>
             </div>
         </div>
@@ -269,8 +270,10 @@
         const teamInput = parseFloat(document.getElementById('teamAmount').value) || 0;
         const vipRate = parseFloat(document.getElementById('vipLevel').value) || 0;
         const cycle = parseInt(document.getElementById('cycle').value);
-        const initialPrice = parseFloat(document.getElementById('initialPrice').value) || 0;
-        const increaseRate = parseFloat(document.getElementById('increaseRate').value) / 100 || 0;
+        
+        // 精度控制：初始币价4位，涨幅2位
+        const initialPrice = parseFloat(parseFloat(document.getElementById('initialPrice').value).toFixed(4)) || 0;
+        const increaseRate = parseFloat(parseFloat(document.getElementById('increaseRate').value).toFixed(2)) / 100 || 0;
         const isCompounding = document.getElementById('isCompounding').checked;
 
         if(lpInput <= 0 || initialPrice <= 0) return alert("请输入有效的本金和币价");
@@ -285,29 +288,18 @@
         let firstDayCoin = 0;
 
         for (let day = 1; day <= cycle; day++) {
-            // 1. 计算当日收益
-            let dailyStatic = personalLP * 0.01; // 个人静态 1%
-            let totalVolume = personalLP + teamInput; // 总业绩 = 实时个人本金 + 团队业绩
-            let dailyVip = totalVolume * 0.01 * vipRate; // VIP 级差收益
+            // 1. 基于当天的本金计算各项收益
+            let totalVolume = personalLP + teamInput; 
+            let dailyStatic = personalLP * 0.01; // 静态收益 1%
+            let dailyVip = totalVolume * 0.01 * vipRate; // VIP 收益
             
-            let dailyTotalProfit = dailyStatic + dailyVip;
-            unreinvestedProfit += dailyTotalProfit;
+            // 利润进入未复投池（7天模式下虽然不增加本金，但法币利润依然要累计供最后提现）
+            unreinvestedProfit += (dailyStatic + dailyVip);
 
-            if (day === 1) {
-                firstDayStatic = dailyStatic;
-                firstDayVip = dailyVip;
-            }
-
-            // 2. 自动复投逻辑 (满100U自动并入个人本金)
-            if (isCompounding && unreinvestedProfit >= 100) {
-                personalLP += unreinvestedProfit;
-                unreinvestedProfit = 0; 
-                // 注意：本金增加后，第二天的 totalVolume 也会自然增加
-            }
-
-            // 3. 计算当日获得的币量 (依据最新个人本金)
+            // 2. 计算当天可获得的 AOU 数量（基于当天尚未复投的个人本金计算）
             let dailyCoin = 0;
             if (cycle === 7) {
+                // 7天模式：只有开启复投才给币，不受 100U 限制
                 if (isCompounding) {
                     dailyCoin = (personalLP * 0.0001) / currentPrice; 
                 }
@@ -317,27 +309,48 @@
                 dailyCoin = (personalLP * 0.005) / currentPrice;
             }
 
-            if (day === 1) firstDayCoin = dailyCoin;
+            // 记录首日数据供展示
+            if (day === 1) {
+                firstDayStatic = dailyStatic;
+                firstDayVip = dailyVip;
+                firstDayCoin = dailyCoin;
+            }
+
             totalCoins += dailyCoin;
 
-            // 4. 币价每日上涨
+            // 3. 复投判定机制（影响第二天的本金基数）
+            if (isCompounding) {
+                if (cycle === 7) {
+                    // 规则1：7天模式下，复投动作仅换算为币，不增加法币个人本金
+                    // personalLP 保持不变
+                } else {
+                    // 规则2：90天/180天模式下，必须满足 100U 起投
+                    if (unreinvestedProfit >= 100) {
+                        // 满足条件后，将利润池全额并入本金，实现利滚利
+                        personalLP += unreinvestedProfit;
+                        unreinvestedProfit = 0; 
+                    }
+                }
+            }
+
+            // 4. 更新第二天币价
             if (day < cycle) {
                 currentPrice *= (1 + increaseRate);
             }
         }
 
         // --- 结算核算 ---
-        // 最终账户内的理财资产 = 最终个人本金 + 最后一轮未复投的零碎收益
+        // 最终账户内法币总资产 = 最终膨胀后的本金 + 最后一轮未满100U的零碎利润
         const grossBalance = personalLP + unreinvestedProfit; 
         
         // 提现手续费统一为：3%（最终总资产）+ 每次提现1U
         const withdrawalFee = (grossBalance * 0.03) + 1; 
         const netBalance = grossBalance - withdrawalFee;
         
-        // 净理财收益 = 提现到手金额 - 初始投入个人本金
+        // 净静态理财收益 = 提现到手金额 - 最初始投入的个人本金
         const netStaticProfit = netBalance - lpInput; 
         
-        // 币的总价值
+        // 币的期末总价值
         const totalCoinValue = totalCoins * currentPrice;
         
         // 综合总收益
